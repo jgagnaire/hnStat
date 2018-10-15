@@ -1,0 +1,6 @@
+*~
+*.tsv
+*.bz2
+*.o
+hnStat
+tests_hnStat
