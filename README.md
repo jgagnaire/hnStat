@@ -43,6 +43,10 @@ If the provided file's size is larger than `QueryProcessor::min_thread_part_size
 
 The maximum number of threads is the number of online CPU cores.  
 
+## Conception & code architecture
+
+![UML class diagram](https://raw.githubusercontent.com/jgagnaire/hnStat/master/UML_class_diagram.png)
+
 # Quick Start
 
 ## Cloning sources
