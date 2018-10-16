@@ -9,9 +9,6 @@
 # include <cstdint>
 # include <string>
 
-// buffer size for ::read() syscall
-# define BUFFER_SIZE (4096)
-
 /*
 ** Class abstracting a file.
 **
@@ -26,7 +23,11 @@
 class File
 {
 public:
-  // Performs a call to ::open() on the filename provided
+  /*
+  ** Performs a call to ::open() on the filename provided.
+  **
+  ** Also calls ::stat() to get the blocksize for the filesystem.
+  */
   File(std::string const &name);
   ~File();
 
@@ -46,6 +47,8 @@ public:
   ** the 'line' string given as parameter without the
   ** newline character.
   **
+  ** _block_size is size of the buffer passed to ::read().
+  **
   ** return: true if success
   **         false if EOF.
   **
@@ -56,6 +59,7 @@ public:
 
 private:
   int _file_fd;
+  blksize_t _block_size;
 };
 
 #endif // !FILE_HH_

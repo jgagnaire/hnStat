@@ -16,6 +16,13 @@
 
 File::File(std::string const &name)
 {
+  struct stat st_buf = {};
+
+  if (::stat(name.c_str(), &st_buf) != -1)
+    _block_size = st_buf.st_blksize;
+  else
+    _block_size = 4096; // Set a default blocksize value
+
   _file_fd = ::open(name.c_str(), O_RDONLY);
 }
 
@@ -48,40 +55,49 @@ bool File::getLine(std::string &line) const
   if (_file_fd == -1)
     return false;
 
-  char buf[BUFFER_SIZE] = {};
-  ssize_t ret;
+  char *buf = new char[_block_size];
+  bool ret = true;
+  ssize_t retval_read;
   ssize_t idx;
 
   line = "";
+  std::memset(buf, 0, _block_size);
   while (true)
     {
-      ret = ::read(_file_fd, buf, BUFFER_SIZE);
-      if (ret == -1)
+      retval_read = ::read(_file_fd, buf, _block_size);
+      if (retval_read == -1)
 	{
 	  std::cerr << "Error: read() failed: " << ::strerror(errno) << std::endl;
-	  return false;
+	  ret = false;
+	  goto end;
 	}
-      else if (ret == 0) // EOF reached
+      else if (retval_read == 0) // EOF reached
 	{
 	  // return false is current 'line' buffer is empty, true otherwise
-	  return !line.empty();
+	  ret = !line.empty();
+	  goto end;
 	}
 
       idx = 0;
-      while (idx < BUFFER_SIZE)
+      while (idx < _block_size)
 	{
 	  if (buf[idx] == '\n')
 	    {
-	      if (::lseek(_file_fd, -(ret - idx - 1), SEEK_CUR) == -1)
+	      if (::lseek(_file_fd, -(retval_read - idx - 1), SEEK_CUR) == -1)
 		{
 		  std::cerr << "Error: lseek() failed: " << ::strerror(errno) << std::endl;
-		  return false;
+		  ret = false;
+		  goto end;
 		}
-	      return true;
+	      ret = true;
+	      goto end;
 	    }
 	  line += buf[idx];
 	  ++idx;
 	}
     }
-  return true;
+
+ end:
+  delete[] buf;
+  return ret;
 }
