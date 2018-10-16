@@ -12,7 +12,9 @@ TESTS_FOLDER	= unit_tests
 
 CXXFLAGS	= -std=c++11 -W -Wall -Wextra -I$(INC_FOLDER)
 
-LDFLAGS		= -lgtest -pthread
+LDFLAGS		= -pthread
+
+LDFLAGS_TESTS	= $(LDFLAGS) -lgtest -lgtest_main
 
 NAME		= hnStat
 
@@ -31,8 +33,7 @@ OBJS		= $(SRCS:.cpp=.o)
 SRCS_TESTS	= $(TESTS_FOLDER)/TestFile.cpp \
 		$(SRC_FOLDER)/File.cpp \
 		$(TESTS_FOLDER)/TestSearchFilter.cpp \
-		$(SRC_FOLDER)/SearchFilter.cpp \
-		$(TESTS_FOLDER)/main.cpp
+		$(SRC_FOLDER)/SearchFilter.cpp
 
 OBJS_TESTS	= $(SRCS_TESTS:.cpp=.o)
 
@@ -44,7 +45,7 @@ $(NAME):	$(OBJS)
 	$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME) $(LDFLAGS)
 
 $(TESTS):	$(OBJS_TESTS)
-	$(CXX) $(OBJS_TESTS) $(CXXFLAGS) -o $(TESTS) $(LDFLAGS)
+	$(CXX) $(OBJS_TESTS) $(CXXFLAGS) -o $(TESTS) $(LDFLAGS_TESTS)
 
 clean:
 	$(RM) $(OBJS) $(OBJS_TESTS)
